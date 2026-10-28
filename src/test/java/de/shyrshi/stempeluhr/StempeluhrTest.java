@@ -145,6 +145,9 @@ class StempeluhrTest {
 
             List<String> n = nachrichten(p);
             assertTrue(enthaelt(n, "letzte Schicht dauerte 45 Min 0 Sek"), n.toString());
+            assertFalse(plugin.daten().get(p.getUniqueId()).istEingestempelt());
+            assertTrue(plugin.daten().get(p.getUniqueId()).warteAufBewegung);
+            aktivVergehen(p, 1);
             assertTrue(plugin.daten().get(p.getUniqueId()).istEingestempelt());
         }
 
@@ -195,6 +198,21 @@ class StempeluhrTest {
             assertEquals(90_000, neu.get(p.getUniqueId()).gesamt);
             assertEquals(90_000, neu.get(p.getUniqueId()).letzteSchicht);
         }
+
+        @Test
+        @DisplayName("Gesamtzeit läuft beim Ausstempeln nicht über")
+        void gesamtzeitSaettigtBeiUeberlauf() {
+            PlayerMock p = server.addPlayer();
+            plugin.daten().get(p.getUniqueId()).gesamt = Long.MAX_VALUE - 1;
+            vergehen(2);
+
+            p.performCommand("ausstempeln");
+
+            assertEquals(Long.MAX_VALUE, plugin.daten().get(p.getUniqueId()).gesamt);
+            StempelDaten neu = new StempelDaten(plugin);
+            neu.laden();
+            assertEquals(Long.MAX_VALUE, neu.get(p.getUniqueId()).gesamt);
+        }
     }
 
     // ------------------------------------------------------------ Robustheit / Sicherheit
@@ -211,18 +229,21 @@ class StempeluhrTest {
         }
 
         @Test
-        @DisplayName("Ungültige UUIDs in daten.yml brechen das Laden nicht ab")
+        @DisplayName("Ungültige UUIDs in daten.yml sperren das Speichern")
         void ungueltigeUuid() throws Exception {
             YamlConfiguration yml = new YamlConfiguration();
             yml.set("spieler.kein-uuid.gesamt", 5000L);
             yml.set("spieler.00000000-0000-0000-0000-000000000001.gesamt", 7000L);
             plugin.getDataFolder().mkdirs();
             yml.save(new File(plugin.getDataFolder(), "daten.yml"));
+            byte[] vorher = java.nio.file.Files.readAllBytes(
+                    new File(plugin.getDataFolder(), "daten.yml").toPath());
 
             StempelDaten d = new StempelDaten(plugin);
-            assertDoesNotThrow(d::laden);
-            assertEquals(7000L,
-                    d.get(java.util.UUID.fromString("00000000-0000-0000-0000-000000000001")).gesamt);
+            assertThrows(IllegalStateException.class, d::laden);
+            d.speichern();
+            assertArrayEquals(vorher, java.nio.file.Files.readAllBytes(
+                    new File(plugin.getDataFolder(), "daten.yml").toPath()));
         }
 
         @Test

@@ -2,7 +2,7 @@ name: Stempeluhr
 version: '${version}'
 main: de.shyrshi.stempeluhr.Stempeluhr
 api-version: '26.3'
-description: Arbeitszeiterfassung - einstempeln beim Join, ausstempeln per Befehl oder beim Verlassen.
+description: Arbeitszeiterfassung mit AFK-Pause und Tages- und Wochenübersicht.
 author: shyrshi
 
 commands:
@@ -16,6 +16,14 @@ commands:
     permission: stempeluhr.use
   schicht:
     description: Zeigt deine laufende Schicht und deine Gesamtarbeitszeit.
+    permission: stempeluhr.use
+  tagesschicht:
+    description: Zeigt deine eigene Arbeitszeit seit 00:00 Uhr heute.
+    usage: /tagesschicht
+    permission: stempeluhr.use
+  rangliste:
+    description: Zeigt die Arbeitszeit-Rangliste für heute oder diese Woche.
+    usage: /rangliste arbeitszeit <tag|woche>
     permission: stempeluhr.use
   arbeitszeit:
     description: Rangliste anzeigen sowie Gesamtarbeitszeit eines Spielers anzeigen oder setzen.
