@@ -11,6 +11,9 @@ Paper-Plugin zur Arbeitszeiterfassung auf Minecraft-Servern. Spieler werden beim
 | `/einstempeln` | `/einstechen`, `/clockin` | Startet eine neue Schicht, falls du ausgestempelt bist. |
 | `/ausstempeln` | `/ausstechen`, `/clockout` | Beendet die laufende Schicht und zeigt die gearbeitete Zeit. |
 | `/schicht` | – | Zeigt die laufende Schicht, die letzte Schicht und deine Gesamtarbeitszeit. |
+| `/tagesschicht` | – | Zeigt deine eigene Arbeitszeit heute seit 00:00 Uhr (Europe/Berlin), einschließlich der laufenden Schicht. |
+| `/rangliste arbeitszeit tag` | – | Top 10 der heutigen Arbeitszeit. |
+| `/rangliste arbeitszeit woche` | – | Top 10 der aktuellen Kalenderwoche ab Montag 00:00 Uhr. |
 | `/arbeitszeit rangliste` | – | Top 10 nach Gesamtarbeitszeit (laufende Schichten zählen mit). Liegst du nicht in den Top 10, wird dein eigener Platz angehängt. |
 
 ### Für Admins
@@ -29,17 +32,19 @@ Hinweise:
 
 | Permission | Standard | Erlaubt |
 |---|---|---|
-| `stempeluhr.use` | alle Spieler | Ein-/Ausstempeln, `/schicht`, `/arbeitszeit rangliste` |
+| `stempeluhr.use` | alle Spieler | Ein-/Ausstempeln, `/schicht`, `/tagesschicht` und Ranglisten |
 | `stempeluhr.admin` | nur OPs | `/arbeitszeit get` und `/arbeitszeit set` |
 
 Mit LuckPerms z. B.: `/lp user Leon permission set stempeluhr.admin true`
 
 ## Verhalten
 
-- **Join:** automatisch eingestempelt, mit Anzeige der letzten Schicht.
+- **Join:** Bei frischer Bewegung automatisch eingestempelt, mit Anzeige der letzten Schicht. Nach einer abgelaufenen Bewegungsfrist beginnt die neue Schicht erst mit der nächsten Bewegung.
+- **AFK:** Nach fünf Minuten ohne Positionsänderung endet die Schicht. Die erste erneute Bewegung startet automatisch eine neue Schicht; die Pause dazwischen zählt nicht. Kameradrehungen und Teleports zählen nicht als Bewegung. Ein-/Ausstempelbefehle und erneutes Verbinden setzen die Bewegungsfrist nicht zurück.
 - **Quit / Server-Stopp:** automatisch ausgestempelt.
 - **Serverabsturz:** Jede Minute wird ein Zwischenstand gespeichert. Nach einem Absturz endet die offene Schicht beim letzten Zwischenstand, es geht also höchstens ca. 1 Minute verloren.
 - **Daten:** `plugins/Stempeluhr/daten.yml`
+- **Tages- und Wochenzeiten:** Abgeschlossene Schichten werden beim Ausstempeln auf Berliner Kalendertage verteilt; laufende Schichten werden bei der Anzeige anteilig mitgezählt. Bereits vor dieser Version abgeschlossene Schichten enthalten keine Zeitstempel und können daher nicht nachträglich in Tag und Woche eingeordnet werden. `/arbeitszeit set` ändert nur die Gesamtzeit, nicht die Tageswerte.
 
 ## Installation
 

@@ -159,6 +159,7 @@ final class ArbeitszeitBefehl implements TabExecutor {
     // ------------------------------------------------------------ Rangliste
 
     private void rangliste(CommandSender sender) {
+        plugin.pruefeInaktivitaet();
         List<Platz> plaetze = berechneRangliste(plugin.daten().alle(), plugin.jetzt());
         if (plaetze.isEmpty()) {
             senden(sender, "<gray>Noch keine Arbeitszeit erfasst.");
